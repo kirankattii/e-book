@@ -52,12 +52,9 @@ let newUser:User
   
   
     // response 
-    res.json({accessToken:token})
+    res.status(201).json({accessToken:token})
     
   } catch (error) {
     return next(createHttpError(500,"Error While signin JWT TOken"))
   }
 }
-
-
-export {createUser}
