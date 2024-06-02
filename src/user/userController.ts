@@ -4,6 +4,7 @@ import userModel from "./userModel";
 import bcrypt from 'bcrypt'
 import { sign } from "jsonwebtoken";
 import { config } from "../config/config";
+import { User } from "./userTypes";
 
 const createUser = async(req:Request,res:Response,next:NextFunction)=>{
 
@@ -20,27 +21,42 @@ const createUser = async(req:Request,res:Response,next:NextFunction)=>{
   }
 
   // database call
+  try {
     const user = await userModel.findOne({email}) 
-
     if(user){
       const error = createHttpError(400,"User already exist with this emai;")
       return next(error)
     }
+    
+  } catch (error) {
+    return next(createHttpError(500,"Error While getting user"))
+  }
+
 
 
   // password --> hash
+let newUser:User
   const hashedPassword = await bcrypt.hash(password,10)
-
-  const newUser =await  userModel.create({
-    name,email,hashedPassword
-  })
+  try {
+      newUser =await  userModel.create({
+      name,email,hashedPassword
+    })
+    
+  } catch (error) {
+    return next(createHttpError(500,"Error while creating user"))
+  }
 
   //token generation
-  const token = sign({sub:newUser._id}, config.jwtSecret as string,{expiresIn:"7d",algorithm:"HS256"})
-
-
-  // response 
-  res.json({accessToken:token})
+  try {
+    const token = sign({sub:newUser._id}, config.jwtSecret as string,{expiresIn:"7d",algorithm:"HS256"})
+  
+  
+    // response 
+    res.json({accessToken:token})
+    
+  } catch (error) {
+    return next(createHttpError(500,"Error While signin JWT TOken"))
+  }
 }
 
 
