@@ -42,6 +42,9 @@ const bookFilePath = path.resolve(__dirname,"../../public/data/uploads",bookFile
   console.log("bookFileUploadResult",bookFileUploadResult);
   console.log("uploadresult",uploadResult);
 
+  // @ts-ignore
+
+  console.log("UserId",req.userId)
 
 
 const newBook  = await bookModel.create({
